@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 96,
+        // marginTop: 96,
     },
     publicTextWrapper: {
         marginTop: 16,

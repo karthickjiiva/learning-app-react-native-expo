@@ -2,8 +2,8 @@ import React from 'react'
 import { StyleSheet, Text, View, TouchableOpacity ,Image } from 'react-native' 
 
 const CourseCard = ({ duration, title, subTitle,image ,slug, onClick }) => {
-    console.log(image )
-    console.log(slug)
+    // console.log(image )
+    // console.log(slug)
     return (
     <TouchableOpacity style={styles.coursesCardsItem} onPress={onClick}> 
         <Image source={{ uri: image }} style={styles.courseImage} /> 

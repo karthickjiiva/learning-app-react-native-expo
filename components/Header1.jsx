@@ -1,13 +1,17 @@
 
 
-import React from 'react';
+import React,{useContext} from 'react';
 import { StyleSheet, View, Button, Alert ,TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import Heading from './Typography/Heading';
 import EvilIcon from '../components/Icons/EvilIcon';
 import { SvgXml } from 'react-native-svg';
-const Header1 = ({ title, pageHeaderStyle, goBack }) => {
+import { AuthContext } from '../contexts/AuthContext';
+
+const Header1 = ({ title = 'Default Title', pageHeaderStyle={marginBottom:16}  }) => {
+    
+    const { logout } = useContext(AuthContext);
     const navigation = useNavigation();
     const logoutIconSvg = `<?xml version="1.0" encoding="iso-8859-1"?>
     <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
@@ -23,16 +27,19 @@ const Header1 = ({ title, pageHeaderStyle, goBack }) => {
         </g>
       </g>
     </svg>`;
+    
+
     const handleLogout = async () => {
         try {
             await AsyncStorage.removeItem('elarnivUsersToken');
             console.log('Token removed from local storage');
+            await logout();
+            // console.log(logout());
             navigation.navigate('Login');
         } catch (error) {
             console.error('Error removing token from storage:', error);
         }
     };
-
     const confirmLogout = () => {
         Alert.alert(
             "",

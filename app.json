@@ -2,7 +2,7 @@
   "expo": {
     "name": "LMS",
     "description": "Learning management system",
-    "slug": "learning_app",
+    "slug": "lms",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
@@ -32,7 +32,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "586dbe17-e298-4006-a14e-cdc21dabb561"
+        "projectId": "89bfe24d-7da3-4f15-a988-d8e6650d0bf7"
       }
     }
   }

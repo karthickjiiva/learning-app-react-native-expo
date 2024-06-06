@@ -7,7 +7,8 @@
       } 
     }, 
     "development": { 
-      "developmentClient": true, 
+      // "developmentClient": true,  //it will open from expo only
+      "developmentClient": false, 
       "distribution": "internal", 
       "android": { 
         "buildType": "apk" 

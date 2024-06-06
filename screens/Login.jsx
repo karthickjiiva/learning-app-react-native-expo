@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useContext,useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
 import { LoginBanner } from '../svgs';
 import Button from '../components/Button';
@@ -8,10 +8,12 @@ import TouchableLink from '../components/TouchableLink';
 import CustomTextInput from '../components/CustomTextInput';
 import EvilIcon from '../components/Icons/EvilIcon';
 import { fetchData } from '../services/service.api';
+import { AuthContext } from '../contexts/AuthContext';
 
 const Login = ({ navigation }) => {
+    const { login } = useContext(AuthContext);
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [password, setPassword] = useState(''); 
     const [loading, setLoading] = useState(false);
     const [isFormValid, setIsFormValid] = useState(false);
 
@@ -21,32 +23,19 @@ const Login = ({ navigation }) => {
         console.log('Form valid:', isValid); // Debug log
     }, [email, password]);
 
+   
     const handleLogin = async () => {
         setLoading(true);
         try {
-            if (!validateEmail(email)) {
-                throw new Error('Invalid email format');
-            }
-
-            if (!validatePassword(password)) {
-                throw new Error('Invalid password format');
-            }
-
             const response = await fetchData(email, password);
-            console.log('Login successful:', response);
-            navigation.navigate('MainScreen');
-        }catch (error) {
+            await login(response.elarniv_users_token);
+            navigation.navigate('Courselist'); // Ensure 'MainScreen' is a valid screen name in your navigator
+        } catch (error) {
             console.error('Login error:', error);
-            if (error.response && error.response.data && error.response.data.message) {
-                Alert.alert('Login Failed', error.response.data.message);
-            } else {
-                Alert.alert('Login Failed', error.message);
-            }
-            } finally {
+            Alert.alert('Login Failed', error.message);
+        } finally {
             setLoading(false);
         }
-
-
     };
 
     const validateEmail = (email) => {

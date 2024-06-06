@@ -17,6 +17,7 @@ import { useFonts } from 'expo-font';
 
 // import AppLoading from 'expo-app-loading';
 import Navigation from './utils/Navigation';
+import { AuthProvider } from './contexts/AuthContext'
 
 export default function App() {
 
@@ -33,12 +34,14 @@ export default function App() {
     Rubik_900Black_Italic 
   });
 
-
+  
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Navigation />
-    </SafeAreaView>
+    <AuthProvider>
+      <SafeAreaView style={styles.container}>
+        <Navigation />
+      </SafeAreaView>
+    </AuthProvider>
   );
 }
 

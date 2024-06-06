@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import CourseCard from '../components/CourseCard'
 import Header1 from '../components/Header1'
 import { fetchLearnings } from '../services/service.api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../contexts/AuthContext';
 
 const Courselist = ({navigation}) => {
+    const { logout } = useContext(AuthContext);
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -28,6 +31,7 @@ const Courselist = ({navigation}) => {
         navigation.navigate('Coursevideo', { slug, id });
     };
 
+
     if (loading) { 
     }
 
@@ -41,7 +45,7 @@ const Courselist = ({navigation}) => {
     return (
         <>
             {/* <Header title={'My Courses'} pageHeaderStyle={{marginBottom:16}} goBack={navigation.goBack} />  */}
-            <Header1 title={'My Courses'} pageHeaderStyle={{marginBottom:16}} /> 
+            <Header1 /> 
             <ScrollView contentContainerStyle={styles.coursesCardsWrapper} showsVerticalScrollIndicator={false}>
                 {courses.map((course, index) => (
                     <CourseCard

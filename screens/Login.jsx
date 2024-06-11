@@ -31,8 +31,15 @@ const Login = ({ navigation }) => {
             await login(response.elarniv_users_token);
             navigation.navigate('Courselist'); // Ensure 'MainScreen' is a valid screen name in your navigator
         } catch (error) {
-            console.error('Login error:', error);
-            Alert.alert('Login Failed', error.message);
+            // console.error('Login error:',error.message);
+            // Alert.alert('Login Failed', error.message);
+            if (error.response && error.response.data && error.response.data.message) {
+                Alert.alert('Login Failed:', error.response.data.message);
+                throw new Error(error.response.data.message);
+            } else {
+                console.error('Fetch error:', error);
+                throw error;
+            }
         } finally {
             setLoading(false);
         }
@@ -96,7 +103,7 @@ marginTop:90,
     container: {
         flex: 1,
         padding: 10,
-        backgroundColor: '#fff',
+        // backgroundColor: '#fff',
     
     },
     publicTextWrapper: {

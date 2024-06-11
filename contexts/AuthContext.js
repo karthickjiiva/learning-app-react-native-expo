@@ -32,6 +32,14 @@ export const AuthProvider = ({ children }) => {
             console.error('Error during login:', error);
         }
     };
+    const signup = async (token) => {
+        try {
+            await AsyncStorage.setItem('elarnivUsersToken', token);
+            setIsAuthenticated(true);
+        } catch (error) {
+            console.error('Error during signup:', error);
+        }
+    };
 
     const logout = async () => {
         try {
@@ -43,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, loading, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, loading, login, logout,signup }}>
             {children}
         </AuthContext.Provider>
     );

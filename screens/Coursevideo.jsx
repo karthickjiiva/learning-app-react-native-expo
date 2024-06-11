@@ -1,14 +1,12 @@
-
-
-
-import React, { useEffect, useState,useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { fetchCoursevideo, fetchCourseDetails, fetchCourseassets } from '../services/service.api';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
+import { fetchCoursevideo, fetchCourseDetails, fetchCourseassets, getToken } from '../services/service.api';
 import Header from '../components/Header';
 import { WebView } from 'react-native-webview';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import RenderHtml from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
+import VimeoPlayer from 'react-native-vimeo-iframe';
 
 const Coursevideo = ({ route }) => {
     const { slug, id } = route.params;
@@ -22,7 +20,9 @@ const Coursevideo = ({ route }) => {
     const [selectedVideoId, setSelectedVideoId] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
     const [expandedGroup, setExpandedGroup] = useState(null);
+    const [accessToken, setAccessToken] = useState('');
     const scrollViewRef = useRef();
+ console.log("selectedVideoUrl",selectedVideoUrl)
 
     useEffect(() => {
         const loadCourse = async () => {
@@ -31,12 +31,13 @@ const Coursevideo = ({ route }) => {
                     fetchCourseDetails(slug),
                     fetchCoursevideo(slug),
                     fetchCourseassets(id),
+                    getToken(setAccessToken),
                 ]);
                 setCourseDetails(course);
                 setVideos(videoData);
                 setAssets((assetData.assets || []).sort((a, b) => a.assetorder - b.assetorder));
                 if (videoData.length > 0) {
-                    setSelectedVideoUrl(videoData[0].video); 
+                    setSelectedVideoUrl(videoData[0].video);
                     setSelectedVideoId(videoData[0].id);
                 }
             } catch (err) {
@@ -46,13 +47,14 @@ const Coursevideo = ({ route }) => {
             }
         };
 
+
         loadCourse();
     }, [slug, id]);
 
     const handleDownload = (url) => {
         Linking.openURL(url).catch((err) => console.error('An error occurred', err));
     };
-    const handleVideoSelect = (videoUrl , videoId) => {
+    const handleVideoSelect = (videoUrl, videoId) => {
         setSelectedVideoUrl(videoUrl);
         setSelectedVideoId(videoId);
         scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
@@ -69,29 +71,40 @@ const Coursevideo = ({ route }) => {
         return groups;
     }, {});
 
-
     const formatVideoLength = (minutes) => {
         const hours = Math.floor(minutes / 60);
         const remainingMinutes = minutes % 60;
         return `${hours} hours ${remainingMinutes} minutes`;
     };
-    
 
     return (
         <>
             <Header title={courseDetails ? courseDetails.title : 'Loading...'} pageHeaderStyle={{ marginBottom: 16 }} />
             <View style={styles.container}>
-                <ScrollView contentContainerStyle={styles.coursesCardsWrapper} showsVerticalScrollIndicator={false}  ref={scrollViewRef}>
-                    {selectedVideoUrl && (
+                <ScrollView contentContainerStyle={styles.coursesCardsWrapper} showsVerticalScrollIndicator={false} ref={scrollViewRef}>
+                    {loading ? (
+                        <ActivityIndicator size="large" color="#ff5d5d" />
+                    ) : selectedVideoUrl ? (
+                        <>
                         <WebView
                             style={styles.webView}
                             javaScriptEnabled={true}
                             domStorageEnabled={true}
                             allowsFullscreenVideo={true}
-                            source={{ uri: selectedVideoUrl }}
+                            source={{ uri:`${selectedVideoUrl}?autoplay=1`,
+                                headers:{ Authorization: `Bearer ${accessToken}` },
+                                 }} 
                             mediaPlaybackRequiresUserAction={false}
-                        />
-                    )}
+                            onLoadStart={() => {
+                                    console.log("WebView loading:", {
+                                        uri: `${selectedVideoUrl}?autoplay=1`,
+                                        headers: { Authorization: `${accessToken}` },
+                                    });
+                                }}
+                        /> 
+                        </>
+
+                    ) : null}
                     <View style={styles.tabContainer}>
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'overview' && styles.activeTab]}
@@ -127,20 +140,19 @@ const Coursevideo = ({ route }) => {
                             ))}
                         </ScrollView>
                     )}
-                    
-                    <Text style={[styles.title,{ marginTop: 12 }]}>Video List</Text>
+                    <Text style={[styles.title, { marginTop: 12 }]}>Video List</Text>
                     {Object.keys(groupedVideos).map((group_name, index) => (
                         <View key={group_name}>
                             <TouchableOpacity onPress={() => toggleAccordion(group_name)}>
-                                <Text style={[styles.videoTitle, { marginBottom: 8 ,justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }]}>
+                                <Text style={[styles.videoTitle, { marginBottom: 8, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }]}>
                                     {group_name} {expandedGroup === group_name ? '-' : '+'}
-                                </Text> 
+                                </Text>
                             </TouchableOpacity>
                             {expandedGroup === group_name && (
                                 <View>
                                     {groupedVideos[group_name].map((video) => (
-                                        <TouchableOpacity 
-                                            key={video.id} 
+                                        <TouchableOpacity
+                                            key={video.id}
                                             onPress={() => handleVideoSelect(video.video, video.id)}
                                         >
                                             <View style={[styles.videoContainer, selectedVideoId === video.id && styles.activeVideoContainer]}>
@@ -192,16 +204,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginTop: 8,
     },
-    videoTitle1:{
-        fontSize:16,
+    videoTitle1: {
+        fontSize: 16,
         color: 'black',
-        marginLeft:10,
+        marginLeft: 10,
     },
     videoContainer: {
         marginBottom: 16,
     },
     activeVideoContainer: {
-        // backgroundColor: '#d3d3d3', 
+        // backgroundColor: '#d3d3d3',
     },
     activeVideoTitle: {
         color: '#ff5d5d',

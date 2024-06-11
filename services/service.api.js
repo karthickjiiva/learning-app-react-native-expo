@@ -1,3 +1,4 @@
+// service.api.js
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -158,6 +159,29 @@ export const fetchCourseassets = async (id) => {
     } catch (error) {
         console.error('Fetch error:', error);
         throw error;
+    }
+};
+
+// vimeo 
+export const getToken = async (setAccessToken) => { // Accept setAccessToken as an argument
+    try {
+        const response = await api.post('learnings/getVimeoToken/', {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = response.data;
+        if (data && data.access_token) {
+            setAccessToken(data.access_token); // Call setAccessToken with the obtained token
+            console.log("response", response);
+            console.log("response.data.access_token", data.access_token);
+            return data.access_token;
+        } else {
+            throw new Error('Access token not found in response');
+        }
+    } catch (err) {
+        console.error('Error fetching token:', err);
+        throw err;
     }
 };
 
